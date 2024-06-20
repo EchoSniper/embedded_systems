@@ -1,0 +1,45 @@
+// Header part
+#include <18F4431.H>
+#device  adc=10 
+#use delay(clock=20000000)
+#fuses   HS,NOWDT
+
+// Define constants for frequencies
+#define FREQ_1KHZ 1000
+#define FREQ_2KHZ 2000
+
+void generate_square_wave(int frequency);
+
+void main()
+{
+    // Setup for digital I/O
+    set_tris_e(0xFF); // Set Port E as input
+    set_tris_b(0x00); // Set Port B as output
+    output_b(0x00);   // Clear Port B output
+
+    while(1)
+    {
+        if (input(PIN_E0)) // If E0 is high
+        {
+            generate_square_wave(FREQ_1KHZ);
+        }
+        else // If E0 is low
+        {
+            generate_square_wave(FREQ_2KHZ);
+        }
+    }
+}
+
+void generate_square_wave(int frequency)
+{
+    int period = (int)(1000000 / frequency); // Calculate period in microseconds
+    int half_period = period / 2;            // Half period for high/low signal
+
+    while(input(PIN_E0) == (frequency == FREQ_1KHZ)) // Stay in loop as long as condition holds
+    {
+        output_high(PIN_B0);         // Set B0 high
+        delay_us(half_period);       // Delay for half period
+        output_low(PIN_B0);          // Set B0 low
+        delay_us(half_period);       // Delay for half period
+    }
+}
